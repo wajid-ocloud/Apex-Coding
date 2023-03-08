@@ -4,6 +4,7 @@ public class StringArrayTest{
         for(Integer c=0; i<numOfStrings; c++){
             result.add('Test '+c);
         }
+        System.debug('Commit 1');
         return result;
     }
 }
