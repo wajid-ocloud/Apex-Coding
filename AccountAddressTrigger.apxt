@@ -1,0 +1,14 @@
+trigger AccountAddressTrigger on Account (before insert, before update) {
+    if( (Trigger.isInsert) || Trigger.isUpdate){
+        system.debug('new = ' + Trigger.new);
+        for(Account acc: Trigger.new){
+            if(acc.Match_Billing_Address__c ){
+                //Account a = new Account(Id=acc.Id, ShippingPostalCode= acc.BillingPostalCode);
+             	acc.ShippingPostalCode = acc.BillingPostalCode;
+                acc.put('ShippingPostalCode', acc.BillingPostalCode);
+                system.debug(acc);
+                //update a;
+            }
+        }
+    }
+}

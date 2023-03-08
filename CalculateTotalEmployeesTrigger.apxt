@@ -1,0 +1,3 @@
+trigger CalculateTotalEmployeesTrigger on Company__c (after insert, after update) {
+	System.debug(Trigger.new);
+}

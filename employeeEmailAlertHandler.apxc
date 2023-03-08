@@ -1,0 +1,22 @@
+public class EmployeeEmailAlertHandler {
+    public static void sendEmailAlert( List<Employee__c> employees ){
+        List<String> emailAddresses = new List<String>();
+        Boolean permanent = false;
+        //List<Company__c> totalPermanentEmployees = new List<Company__c>();
+        for (Employee__c emp : employees) {
+            if(emp.Is_Permanent_Employee__c ){
+                emailAddresses.add(emp.Email__c);
+                permanent = true;
+            }
+        }
+        
+        if(permanent){
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setBccAddresses(emailAddresses);
+            mail.setSubject('Employee Status Changed');
+            mail.setPlainTextBody('Your Permanent Employee status has been changed');
+         Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
+    }
+    
+}

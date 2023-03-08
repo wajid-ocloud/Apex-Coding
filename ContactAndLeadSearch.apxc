@@ -1,0 +1,7 @@
+public class ContactAndLeadSearch {
+    public static List<List<SObject>> searchContactsAndLeads(String params){
+        List<List<SObject>> result = new List<List<SObject>>([FIND :params IN ALL FIELDS RETURNING Contact(FirstName,LastName), Lead(FirstName,LastName)]);
+        return result;
+    }
+
+}

@@ -1,0 +1,7 @@
+trigger EmployeeEmailAlertTrigger on Employee__c (after insert, after update) {
+    
+    System.debug('trigger'+Trigger.new);
+    EmployeeEmailAlertHandler.sendEmailAlert(Trigger.new);
+     // Update Total Employees Permanent Employees in Company
+     UpdatePermanentEmployeesHandler.updateEmployeeStatus();
+ }

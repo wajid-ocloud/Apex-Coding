@@ -1,0 +1,20 @@
+public class MathCalculator {
+
+    private static Integer add(Integer a, Integer b) {
+        return a + b;
+    }
+
+    private static Integer multiply(Integer a, Integer b){
+        return a * b;
+    }
+    private static void printOutput(String s, Integer a){
+        System.debug(s +': '+ a);
+    }
+    public void doMath(Integer a, Integer b){
+        Integer result = add(a, b);
+        printOutput('The summation is', result);
+
+        result = multiply(a, b);
+        printOutput('The product is', result);
+    }
+}

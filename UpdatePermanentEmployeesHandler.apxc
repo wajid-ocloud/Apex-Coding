@@ -1,0 +1,38 @@
+public class UpdatePermanentEmployeesHandler {
+    
+    public static void updateEmployeeStatus(){
+        List<SObject> empList = [SELECT Company__c, Is_Permanent_Employee__c FROM Employee__c];
+        System.debug('Permanet'+empList);
+        List<Company__c> totalPermanentEmployees = new List<Company__c>();
+        
+        Map<String, Integer>  permanentEmployeesMap = new Map<String, Integer>();
+        String companyID ='';
+        Integer permanentEmployeeCount = 0;
+        
+        for(SObject emp: empList){
+            companyID = (String )emp.get('Company__c');
+            if(permanentEmployeesMap.get(companyID)!=null){
+                if(emp.get('Is_Permanent_Employee__c') ==true){
+                permanentEmployeeCount = 1 + permanentEmployeesMap.get(companyID);
+                 }
+                else{
+                    permanentEmployeeCount = permanentEmployeesMap.get(companyID);
+                }
+                
+            }
+            else{
+                if(emp.get('Is_Permanent_Employee__c') ==true){
+                	permanentEmployeeCount = 1;
+                 }
+            }
+            permanentEmployeesMap.put(companyID, permanentEmployeeCount);
+            //totalPermanentEmployees.add(new Company__c(ID=(String )emp.get('ID'), Total_Permanent_Employees__c=(Integer) emp.get('permanent')));
+        }
+        for(String key : permanentEmployeesMap.keySet()){
+            totalPermanentEmployees.add(new Company__c(ID=key, Total_Permanent_Employees__c= permanentEmployeesMap.get(key)));
+        }
+        upsert totalPermanentEmployees;
+    }
+}
+
+//Is_Permanent_Employee__c permanent,
