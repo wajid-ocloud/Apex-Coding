@@ -1,0 +1,7 @@
+public virtual class StringWriter  {
+    //tester method
+    //Conflicts Resolved
+    public virtual void printString(){
+        System.debug('This is the default string writer');
+    }
+}
