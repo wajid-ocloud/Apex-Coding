@@ -2,8 +2,6 @@ public class StringArrayTest{
     public static List<String> generateStringArray(Integer numOfStrings){
         List<String> result = new List<String>();
         System.debug('Commit 1');
-        System.debug('Commit 2');
-        System.debug('Commit 3');
         for(Integer c=0; i<numOfStrings; c++){
             result.add('Test '+c);
         }
