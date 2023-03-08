@@ -1,4 +1,5 @@
 public virtual class StringWriter  {
+    //tester method
     public virtual void printString(){
         System.debug('This is the default string writer');
     }
