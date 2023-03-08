@@ -1,8 +1,8 @@
 public class StringArrayTest{
     public static List<String> generateStringArray(Integer numOfStrings){
         List<String> result = new List<String>();
-        for(Integer i=0; i<numOfStrings; i++){
-            result.add('Test '+i);
+        for(Integer j=0; i<numOfStrings; j++){
+            result.add('Test '+j);
         }
         return result;
     }
