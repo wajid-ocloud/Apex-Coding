@@ -1,0 +1,15 @@
+trigger AdhocEventsTrigger on Adhoc_Event__c (after insert, after update, before delete) {
+    
+    if(trigger.isDelete){
+        //Delete the events
+        AdhocEventsHandler.deleteAdhocEventsHelper(Trigger.old);
+    }
+    else if(trigger.isUpdate && RecursiveTrigger.firstTime==true){
+        //Update the events
+        AdhocEventsHandler.updateAdhocEventsHelper(Trigger.new);
+    }
+    else if(trigger.isInsert){
+        //Insert the events 
+        AdhocEventsHandler.insertAdhocEventsHelper(trigger.new);
+    }
+}
