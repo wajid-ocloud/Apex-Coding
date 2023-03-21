@@ -1,0 +1,25 @@
+@isTest
+public class AddPrimaryContactTest {
+	@TestSetup
+    static void setup(){
+        List<Account> accounts = new List<Account>();
+        
+        // Insert 200 Records
+        for(Integer i =0; i<100; i++){
+            if(i<50)accounts.add(new Account(Name='Test', BillingState ='NY'));
+            else accounts.add(new Account(Name='test', BillingState ='CA'));
+        }
+        insert accounts;
+    }
+    
+    @isTest static void test(){
+        Contact c = new Contact (FirstName= 'Test Contact');
+        AddPrimaryContact  apc = new AddPrimaryContact (c, 'CA');
+        
+        Test.startTest();
+        System.enqueueJob(apc);
+        Test.stopTest();
+        // Validate the job ran. Check if record have correct parentId now
+        System.assertEquals(50, [select count() from Contact where MailingState='CA']);
+    }
+}
