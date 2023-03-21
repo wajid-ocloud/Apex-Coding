@@ -1,0 +1,84 @@
+public class AdhocEventsHandler {
+    
+    public static void insertAdhocEventsHelper(List<Adhoc_Event__c> adhocEventsList){
+        
+        String requestMethod = 'POST';
+        
+        for(Adhoc_Event__c event: adhocEventsList){
+            String endpointUrl = 'callout:GoogleCalendar/calendars/'+event.Manager_Email__c+'/events';
+            
+            String eventDetails = jsonConverter(event);
+            
+            sendHttpRequest(eventDetails, requestMethod, endpointUrl, event.Id);            
+        }
+        
+    }
+    
+    public static void updateAdhocEventsHelper(List<Adhoc_Event__c> adhocEventsList){
+        String requestMethod = 'PUT';
+        
+        for(Adhoc_Event__c event: adhocEventsList){
+            String endpointUrl = 'callout:GoogleCalendar/calendars/'+event.Manager_Email__c+'/events/'+event.iCalUID__c;
+            
+            String eventDetails = jsonConverter(event);
+            
+            sendHttpRequest(eventDetails, requestMethod, endpointUrl, null);            
+        }
+    }
+    
+    public static void deleteAdhocEventsHelper(List<Adhoc_Event__c> adhocEventsList){
+        String requestMethod = 'DELETE';
+        
+        for(Adhoc_Event__c event: adhocEventsList){
+            String endpointUrl = 'callout:GoogleCalendar/calendars/'+event.Manager_Email__c+'/events/'+event.iCalUID__c;
+            
+            String eventDetails = '';
+            sendHttpRequest(eventDetails, requestMethod, endpointUrl, null);            
+        }
+    }
+    
+    @future(callout=true)
+    private static void sendHttpRequest(String requestBody, String requestMethod, String endpointUrl, ID eventID){
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint(endpointUrl);
+        request.setMethod(requestMethod);
+        
+        if(requestMethod == 'PUT' || requestMethod == 'POST'){
+            request.setBody(requestBody);
+        }
+        
+        // Send the HTTP request and get the response
+        HttpResponse response = new Http().send(request);
+        
+        if (response.getStatusCode() == 200 && requestMethod == 'POST' && RecursiveTrigger.firstTime==true) {
+            
+            Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(response.getBody()); 
+            
+            Adhoc_Event__c adhoc = [SELECT iCalUID__c FROM Adhoc_Event__c WHERE ID=:eventID];//new Adhoc_Event__c(ID=eventID, iCalUID__c =(String)results.get('id'));
+            adhoc.iCalUID__c = (String)results.get('id');
+            RecursiveTrigger.firstTime = false;
+            upsert adhoc;
+            
+        } else {
+            // Handle the error
+            String errorMessage = 'Error ' + response.getStatusCode() + ': ' + response.getStatus() + response.getBody();
+            System.debug(errorMessage);
+            
+        }
+        
+    }
+    
+    //This method makes a json string and stores it to eventDetails
+    private static String jsonConverter(Adhoc_Event__c event){
+        String endDateTime = ''+event.End_Date__c;
+        endDateTime = endDateTime.replace(' ', 'T');
+        String startDateTime = ''+event.Start_Date__c;
+        startDateTime = startDateTime.replace(' ', 'T');
+        String userTimeZone = UserInfo.getTimeZone().getID();
+        String eventDetails = '{"end": {"dateTime": "'+endDateTime+'","timeZone":"'+
+            userTimeZone+'"},"start": {"dateTime": "'+startDateTime+'","timeZone":"'+
+            userTimeZone+'"}, "summary": "'+event.Subject__c+'"}';
+        return eventDetails;
+    }
+    
+}
