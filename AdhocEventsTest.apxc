@@ -1,0 +1,158 @@
+@isTest
+private class AdhocEventsTest{
+	
+    // Insert Mock Test Data
+    @TestSetup
+    static void setup(){
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('AdhocEventsTestStaticREsource');
+        mock.setStatusCode(200);
+		mock.setHeader('Content-Type', 'application/json');
+        
+        Test.setMock(HttpCalloutMock.class, new AdhocEventsMockCallout());
+        DateTime mockStartDateTime = DateTime.newInstance(2023,03,21, 17,30,0);
+        DateTime mockEndDateTime = DateTime.newInstance(2023,03,21, 18,30,0);
+        Adhoc_Event__c mockEvent = new Adhoc_Event__c(Name='Test', Subject__c = 'Test', 
+                                                      Start_Date__c=mockStartDateTime, 
+                                                      End_Date__c = mockEndDateTime, 
+                                                      Manager_Email__c = 'wajid.ali@ocloudsolutions.net');
+        
+        insert mockEvent;
+    }
+    
+    @isTest
+    static void insertAdhocEventsHelperTest(){
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('AdhocEventsTestStaticREsource');
+        mock.setStatusCode(200);
+		mock.setHeader('Content-Type', 'application/json');
+        
+        Test.setMock(HttpCalloutMock.class, new AdhocEventsMockCallout());
+        
+        Test.startTest();
+        List<Adhoc_Event__c> events = [SELECT Subject__c, Start_Date__c, End_Date__c, Manager_Email__c FROM Adhoc_Event__c LIMIT 200];
+        
+        
+        // Call the method
+        AdhocEventsHandler.insertAdhocEventsHelper(events);
+        Test.stopTest();
+        
+        Adhoc_Event__c ev = [SELECT iCalUID__c FROM Adhoc_Event__c WHERE Id=:events[0].Id];
+        
+        System.assertEquals('abC200', ev.iCalUID__c);
+    }
+    
+    @isTest
+    static void updateAdhocEventsHelperTest(){
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('AdhocEventsTestStaticREsource');
+        mock.setStatusCode(200);
+		mock.setHeader('Content-Type', 'application/json');
+        
+        Test.setMock(HttpCalloutMock.class, new AdhocEventsMockCallout());
+        Test.startTest();
+        List<Adhoc_Event__c> events = [SELECT Subject__c, Start_Date__c, End_Date__c, Manager_Email__c FROM Adhoc_Event__c LIMIT 200];
+        
+        
+        // Call the method
+        AdhocEventsHandler.updateAdhocEventsHelper(events);
+        Test.stopTest();
+        
+        Adhoc_Event__c ev = [SELECT iCalUID__c FROM Adhoc_Event__c WHERE Id=:events[0].Id];
+        
+        System.assertEquals('abC200', ev.iCalUID__c);
+    }
+    
+    @isTest
+    static void deleteAdhocEventsHelperTest(){
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('AdhocEventsTestStaticREsource');
+        mock.setStatusCode(200);
+		mock.setHeader('Content-Type', 'application/json');
+        
+        Test.setMock(HttpCalloutMock.class, new AdhocEventsMockCallout());
+        Test.startTest();
+        List<Adhoc_Event__c> events = [SELECT Subject__c, Start_Date__c, End_Date__c, Manager_Email__c FROM Adhoc_Event__c LIMIT 200];
+        
+        
+        // Call the method
+        AdhocEventsHandler.deleteAdhocEventsHelper(events);
+        Test.stopTest();
+        
+        Adhoc_Event__c ev = [SELECT iCalUID__c FROM Adhoc_Event__c WHERE Id=:events[0].Id];
+        
+        System.assertEquals('abC200', ev.iCalUID__c);
+    }
+    
+    @isTest
+    static void sendHttpRequestTest(){
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('AdhocEventsTestStaticREsource');
+        mock.setStatusCode(200);
+		mock.setHeader('Content-Type', 'application/json');
+        
+        Test.setMock(HttpCalloutMock.class, new AdhocEventsMockCallout());
+        Test.startTest();
+        List<Adhoc_Event__c> events = [SELECT Subject__c, Start_Date__c, End_Date__c, Manager_Email__c FROM Adhoc_Event__c LIMIT 200];
+        
+        
+        String endDateTime = ''+events[0].End_Date__c;
+        endDateTime = endDateTime.replace(' ', 'T');
+        String startDateTime = ''+events[0].Start_Date__c;
+        startDateTime = startDateTime.replace(' ', 'T');
+        String userTimeZone = UserInfo.getTimeZone().getID();
+        String eventDetails = '{"end": {"dateTime": "'+endDateTime+'","timeZone":"'+
+            userTimeZone+'"},"start": {"dateTime": "'+startDateTime+'","timeZone":"'+
+            userTimeZone+'"}, "summary": "'+events[0].Subject__c+'"}';
+        
+        
+		String requestBody = eventDetails; 
+        String requestMethod = 'POST'; 
+        //String endpointUrl = 'callout:GoogleCalendar/calendars/'+events[0].Manager_Email__c+'/events';
+        String endpointUrl = 'https://www.googleapis.com/auth/calendar/calendars/'+events[0].Manager_Email__c+'/events';
+        
+        ID eventID = events[0].Id;
+        
+        
+        // Call the method
+        AdhocEventsHandler.sendHttpRequest(requestBody, requestMethod, endpointUrl, eventID);
+        Test.stopTest();
+        
+        Adhoc_Event__c ev = [SELECT iCalUID__c FROM Adhoc_Event__c WHERE Id=:events[0].Id];
+        
+        System.assertEquals('abC200', ev.iCalUID__c);
+    }
+    
+    @isTest
+    static void jsonConverteTest(){
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('AdhocEventsTestStaticREsource');
+        mock.setStatusCode(200);
+		mock.setHeader('Content-Type', 'application/json');
+        
+        Test.setMock(HttpCalloutMock.class, new AdhocEventsMockCallout());
+        Test.startTest();
+        List<Adhoc_Event__c> events = [SELECT Subject__c, Start_Date__c, End_Date__c, Manager_Email__c FROM Adhoc_Event__c LIMIT 200];
+        
+        
+        // Call the method
+        String result = AdhocEventsHandler.jsonConverter(events[0]);
+        Test.stopTest();
+        
+        
+        
+        String endDateTime = ''+events[0].End_Date__c;
+        endDateTime = endDateTime.replace(' ', 'T');
+        String startDateTime = ''+events[0].Start_Date__c;
+        startDateTime = startDateTime.replace(' ', 'T');
+        String userTimeZone = UserInfo.getTimeZone().getID();
+        String eventDetails = '{"end": {"dateTime": "'+endDateTime+'","timeZone":"'+
+            userTimeZone+'"},"start": {"dateTime": "'+startDateTime+'","timeZone":"'+
+            userTimeZone+'"}, "summary": "'+events[0].Subject__c+'"}';
+        
+        
+        System.assertEquals(eventDetails, result);
+    }
+    
+    
+}
